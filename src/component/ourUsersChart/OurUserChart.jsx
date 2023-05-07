@@ -3,7 +3,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
-import { async } from "@firebase/util";
 import { Box } from "@mui/material";
 
 ChartJS.register(ArcElement, Tooltip, Legend);

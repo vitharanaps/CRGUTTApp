@@ -17,7 +17,7 @@ import Navbar from "../../component/navbar/Navbar";
 import OurUserChart from "../../component/ourUsersChart/OurUserChart";
 import SideBar from "../../component/sideBar/SideBar";
 import Widgets from "../../component/widgets/Widgets";
-import { db } from "../../firebase";
+import SearchChart from "../../component/ourUsersChart/SearchChart";
 
 
 
@@ -43,7 +43,7 @@ const Home = () => {
           <Stack>
             <Box sx={style.widgets}>
               <Box sx={style.userChart}><OurUserChart /></Box>
-              <Box sx={style.stnChart}></Box>
+              <Box sx={style.stnChart}><SearchChart /></Box>
             </Box>
           </Stack>
         </Box>

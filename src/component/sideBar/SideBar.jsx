@@ -17,6 +17,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useLocation } from "react-router-dom";
 import TrafficIcon from "@mui/icons-material/Traffic";
 import { AuthContext } from "../../context/AuthContext";
+import { Home } from "@mui/icons-material";
 
 
 const SideBar = () => {
@@ -166,7 +167,7 @@ const SideBar = () => {
               }
             >
               <ListItemIcon>
-                <AddRoadIcon />
+                <Home />
               </ListItemIcon>
               <ListItemText primary="Home Station" />
             </ListItemButton>
