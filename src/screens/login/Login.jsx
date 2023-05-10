@@ -43,10 +43,12 @@ const Login = () => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       if (docSnap.data().role === "admin") {
-        localStorage.setItem("user", JSON.stringify(docSnap.data()));
+        localStorage.setItem("user", JSON.stringify({id: docSnap?.id , ...docSnap.data()}));
 
-        dispatch({ type: "LOGIN", payload: docSnap.data() });
+        dispatch({ type: "LOGIN", payload: {id: docSnap?.id, ...docSnap.data()} });
         navigate("/");
+      }else{
+        alert("You Haven't Access To Do This")
       }
     } else {
       console.log("No such document!");
@@ -55,12 +57,13 @@ const Login = () => {
   return (
     <Box
       sx={{
-        width: "100%",
+        width: "95%",
         height: "100vh",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        backgroundImage: `url("https://images.unsplash.com/photo-1527295110-5145f6b148d0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1662&q=80")`,
+        justifyContent: "right",
+        paddingRight:10,
+        backgroundImage: `url("../assests/adminPanelHome.jpeg")`,
       }}
     >
       <Box
@@ -71,8 +74,8 @@ const Login = () => {
           justifyContent: "center",
           backgroundColor: "#fff",
           height: "50vh",
-          width: "30vw",
-          boxShadow: "0px 23px 17px -14px rgba(0, 0, 0, 0.1)",
+          width: "40vw",
+          boxShadow: "-1px 1px 7px 5px rgba(0,0,0,0.48)",
           borderRadius: 10,
           padding: 3,
           gap: 5,

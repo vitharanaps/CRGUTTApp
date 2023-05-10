@@ -19,8 +19,12 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Navbar from "../../component/navbar/Navbar";
 import SideBar from "../../component/sideBar/SideBar";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -39,17 +43,21 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import dayjs from "dayjs";
-import relativeTime from 'dayjs/plugin/relativeTime'
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useNavigate } from "react-router-dom";
-
+import { AuthContext } from "../../context/AuthContext";
 
 const AddSignalSchema = yup.object().shape({
   stnNo: yup.string().required("Stn No Required"),
+  formNo: yup.string().required("Form Train No Required"),
+
 });
 
 const Stns = () => {
+  const { currentUser } = useContext(AuthContext);
+
   const [line, setLine] = useState("");
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -62,13 +70,12 @@ const Stns = () => {
   const [lineDetail, setLineDetail] = useState(null);
   const [uploadingPers, setUploadingPers] = useState(null);
   const [loadingLineToSelect, setLoadingLineToSelect] = useState(false);
-const [ trainDetail,  setTrainDetail] = useState(null)
-const [train, setTrain]= useState(null)
-const [trainFromDb, setTrainFromDb] = useState([])
-const [loadingTrainToSelect, setLoadingTrainToSelect] = useState(false)
+  const [trainDetail, setTrainDetail] = useState(null);
+  const [train, setTrain] = useState(null);
+  const [trainFromDb, setTrainFromDb] = useState([]);
+  const [loadingTrainToSelect, setLoadingTrainToSelect] = useState(false);
 
-
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleChangeLine = (e) => {
     setLine(e.target.value);
   };
@@ -160,7 +167,7 @@ const navigate = useNavigate();
 
   const addStn = async (values, resetForm) => {
     setLoadingInsertStns(true);
-    const { stnNo } = values;
+    const { stnNo,formNo } = values;
 
     //check Train No is Unique
     const qTrainNo = query(
@@ -173,39 +180,54 @@ const navigate = useNavigate();
       alert("Please Select Train");
     } else if (file === null) {
       alert("Please Select Stn Image");
-   // }else if(countTrain >0){
-     // alert("STN Available for This Train Number")
-    } 
-    
-    
-    else {
-
-        try {
-          const docRef = await addDoc(collection(db, "stns"), {
-            stnNo: stnNo,
-            trainNo: trainDetail?.trainNo,
-            stAt: trainDetail?.stPlace,
-            stTime:trainDetail?.stTime,
-            destPlace:trainDetail?.destPlace,
-            destTime:trainDetail?.destTime,
-            line: trainDetail.line,
-            lineNo: trainDetail.lineNo,
-            stnImage: downloardableUrl,
-            timeStamp: serverTimestamp(),
-          });
-          resetForm((values = ""));
-          handleClose();
-          fetchData();
-          setOpenSnackbar(true);
-          setDownloardableUrl(null)
-          setTrainDetail(null)
-        } catch (err) {
-          console.log(err);
-        }
-      
+    } else if (countTrain > 0) {
+      alert("STN Available for This Train Number");
+    } else {
+      try {
+        const docRef = await addDoc(collection(db, "stns"), {
+          stnNo: stnNo,
+          trainNo: trainDetail?.trainNo,
+          stAt: trainDetail?.stPlace,
+          stTime: trainDetail?.stTime,
+          destPlace: trainDetail?.destPlace,
+          destTime: trainDetail?.destTime,
+          line: trainDetail.line,
+          lineNo: trainDetail.lineNo,
+          formTrainNo :formNo,
+          stnImage: downloardableUrl,
+          timeStamp: serverTimestamp(),
+        });
+        resetForm((values = ""));
+        handleClose();
+        fetchData();
+        setOpenSnackbar(true);
+        setDownloardableUrl(null);
+        setTrainDetail(null);
+        //create notification function stnNo pass to function
+        createNotificationFunction(stnNo);
+      } catch (err) {
+        console.log(err);
+      }
     }
     setLoadingInsertStns(false);
   };
+
+  //create Notification function
+
+  const createNotificationFunction = async (stnNo) => {
+    try {
+      const docRef = await addDoc(collection(db, "Notification"), {
+        title: trainDetail?.trainNo + "  From Stn No " + stnNo,
+        description: `Created a New Stn for Train No ${trainDetail?.trainNo}`,
+        createdBy: currentUser?.nameWithIn,
+        view: [],
+        timeStamp: serverTimestamp(),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   //Snack bar
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
@@ -271,7 +293,7 @@ const navigate = useNavigate();
     fetchLineToSelectBox();
   }, []);
 
-  console.log("line", linesFromDb)
+  console.log("line", linesFromDb);
   //Fetch Line To select Box
 
   useEffect(() => {
@@ -294,33 +316,32 @@ const navigate = useNavigate();
     fetchLineToSelect();
   }, [line]);
 
-//fetch tain to select box
+  //fetch tain to select box
 
-useEffect(() => {
-  const fetchTrainToSelectBox = async () => {
-    let list = [];
-    try {
-      const querySnapshot = await getDocs(collection(db, "trains"));
-      querySnapshot.forEach((doc) => {
-        list.push({ id: doc.id, ...doc.data() });
-      });
-      setTrainFromDb(list);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  fetchTrainToSelectBox();
-}, []);
+  useEffect(() => {
+    const fetchTrainToSelectBox = async () => {
+      let list = [];
+      try {
+        const querySnapshot = await getDocs(collection(db, "trains"));
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setTrainFromDb(list);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchTrainToSelectBox();
+  }, []);
 
-//Train details From Db
+  //Train details From Db
   useEffect(() => {
     const fetchTrainToSelect = async () => {
       setLoadingLineToSelect(true);
       if (train === "") {
         setTrainDetail(null);
       } else {
-        const docRef = doc(db, "trains",train
-        );
+        const docRef = doc(db, "trains", train);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -334,25 +355,23 @@ useEffect(() => {
     fetchTrainToSelect();
   }, [train]);
 
-  const convertDate = (timeStamp)=>{
+  const convertDate = (timeStamp) => {
     const convertedDate = timeStamp.toDate();
- //   const formatedDate = format(convertedDate, 'yyyy/MM/dd')
-return dayjs(convertedDate).fromNow(true)
-  }
+    //   const formatedDate = format(convertedDate, 'yyyy/MM/dd')
+    return dayjs(convertedDate).fromNow(true);
+  };
 
-  dayjs.extend(relativeTime)
-console.log(train)
+  dayjs.extend(relativeTime);
 
+  const handleView = (id) => {
+    // navigate("/", { state: { id: id} });
+    navigate(`/stn/${id}`);
+  };
 
-const handleView = (id) => {
-  // navigate("/", { state: { id: id} });
-  navigate(`/stn/${id}`)
- };
-
- const [loadValue, setLoadValue] = useState(3)
- const loadMore = () =>{
-  setLoadValue((prevValue)=> prevValue + 3)
-}
+  const [loadValue, setLoadValue] = useState(3);
+  const loadMore = () => {
+    setLoadValue((prevValue) => prevValue + 3);
+  };
   return (
     <Box>
       <Navbar />
@@ -462,7 +481,6 @@ const handleView = (id) => {
                         <TableCell align="center">Destination</TableCell>
                         <TableCell align="center">Updated At</TableCell>
                         <TableCell align="center">Operations</TableCell>
-
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -471,29 +489,25 @@ const handleView = (id) => {
                           <TableCell align="center">{row?.trainNo}</TableCell>
                           <TableCell>{row?.stnNo}</TableCell>
 
+                          <TableCell align="center">{row?.line}</TableCell>
                           <TableCell align="center">
-                            {row?.line}
+                            {row?.stTime} -{row?.stAt}
                           </TableCell>
                           <TableCell align="center">
-                            {row?.stTime} -
-                            {row?.stAt} 
+                            {row?.destTime} -{row?.destPlace}{" "}
                           </TableCell>
-                          <TableCell align="center">
-                          {row?.destTime} -
-                            {row?.destPlace}                           </TableCell>
                           <TableCell align="center">
                             <Typography variant="body2" sx={style.pending}>
-                            {  
-                            
-                                convertDate(row?.timeStamp)
-                            
- }
-                            
+                              {convertDate(row?.timeStamp)}
                             </Typography>
                           </TableCell>
                           <TableCell align="center">
                             <Box>
-                              <Button variant="contained" color="success" onClick={()=>handleView(row?.id)} >
+                              <Button
+                                variant="contained"
+                                color="success"
+                                onClick={() => handleView(row?.id)}
+                              >
                                 {" "}
                                 View
                               </Button>
@@ -507,22 +521,25 @@ const handleView = (id) => {
               </Box>
             </Box>
           </Stack>
-          {filterderData.length > 0 &&
-           <Stack
-           sx={{
-             justifyContent: "center",
-             marginBottom: 2,
-             alignItems: "center",
-           }}
-         >
-           <Box sx={style.loadMoreContainer}>
-             <Button variant="contained" color="secondary" onClick={loadMore} >
-               Load More
-             </Button>
-           </Box>
-         </Stack>
-          
-          }
+          {filterderData.length > 0 && (
+            <Stack
+              sx={{
+                justifyContent: "center",
+                marginBottom: 2,
+                alignItems: "center",
+              }}
+            >
+              <Box sx={style.loadMoreContainer}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={loadMore}
+                >
+                  Load More
+                </Button>
+              </Box>
+            </Stack>
+          )}
         </Box>
       </Box>
 
@@ -530,6 +547,7 @@ const handleView = (id) => {
       <Formik
         initialValues={{
           stnNo: "",
+          formNo : ""
         }}
         validateOnMount={true}
         // onSubmit={(values, {resetForm})=>{
@@ -655,6 +673,21 @@ const handleView = (id) => {
                     )
                   )}
 
+                  <div>
+                    <TextField
+                      label="Form Train No"
+                      id="outlined-size-small"
+                      size="small"
+                      onChange={handleChange("formNo")}
+                      onBlur={handleBlur("formNo")}
+                      value={values.formNo}
+                    />
+                    {errors.formNo && touched.formNo ? (
+                      <Typography style={style.errorMsg}>
+                        {errors.formNo}
+                      </Typography>
+                    ) : null}
+                  </div>
                   <div>
                     <TextField
                       label="Stn No"

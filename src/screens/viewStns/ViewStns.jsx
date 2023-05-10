@@ -498,6 +498,23 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                       </tr>
+                      <tr height="40px">
+                        <td>
+                          {" "}
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            Form Train No{" "}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            {" "}
+                            {
+//stnData?.timeStamp.toString()
+                          stnData?.formTrainNo
+                          }
+                          </Typography>
+                        </td>
+                      </tr>
                     </table>
                   </Box>
                 </Box>
