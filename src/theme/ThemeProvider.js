@@ -4,29 +4,15 @@ import { useColorScheme } from "react-native";
 import { lightColors, darkColors } from "./colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const ThemeContext = createContext({
-  dark: false,
+  dark: true,
   colors: lightColors,
   setScheme: () => {},
 });
 
 const ThemeContextProvider = ({ children }) => {
- // const colorScheme = useColorScheme();
- // const colorScheme = "dark"
-
-
-
-  const [colorScheme, setColorScheme] = useState("light" || AsyncStorage.getItem("valueOfDark"))
-
-  const setColorSchemeToAsync = async () => {
-    await AsyncStorage.setItem("valueOfDark", colorScheme);
-   const getColorFromAsync = await AsyncStorage.getItem("valueOfDark");
-   console.log("xxx", getColorFromAsync);
-  };
-  setColorSchemeToAsync();
-
+ const colorScheme = useColorScheme();
+ 
   const [isDark, setIsDark] = useState(colorScheme == "dark");
- // const [isDark, setIsDark] = useState(false);
-
   useEffect(() => {
     setIsDark(colorScheme == "dark");
   }, [colorScheme]);

@@ -40,7 +40,6 @@ const AppNavigation = () => {
         options={{
           headerShown: false,
 
-          // tabBarIcon: ({ color, size }) => (<Entypo name="home" color={color} size={size} />)
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: "center", top: 20 }} >
               <Entypo name="home" color={focused ? "#5171ff" : '#748c94'} size={25} style={{ marginBottom: 5 }} />

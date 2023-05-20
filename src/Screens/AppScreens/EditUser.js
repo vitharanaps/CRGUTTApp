@@ -146,6 +146,7 @@ const EditUser = () => {
                     <FontAwesome name="user-o" color={colors.text2} size={20} />
                     <TextInput
                       placeholder="Enter Your ID Number"
+                      editable={false}
                       style={[styles.textInput, { color: colors.text2 }]}
                       autoCapitalize="none"
                       keyboardType="numeric"
@@ -266,15 +267,15 @@ const EditUser = () => {
                     <Entypo name="home" color={colors.text2} size={20} />
 
                     <Picker
-                      style={[styles.textInput, { color: colors.text2 }]}                      selectedValue={selectedValue}
+                      style={[styles.textInput, { color: colors.secondary }]}                      selectedValue={selectedValue}
                       onValueChange={(itemValue, itemIndex) =>
                         setSelectedValue(itemValue)
                       }
                     >
-                      <Picker.Item color={colors.text1} label="Select Your Home Station" value="" />
+                      <Picker.Item color={colors.secondary} label="Select Your Home Station" value="" />
                       {data.map((hs) => (
                         <Picker.Item
-                        color={colors.text1}
+                        color={colors.text2}
                           label={hs.hStationName}
                           key={hs.id}
                           value={hs.hStationName}

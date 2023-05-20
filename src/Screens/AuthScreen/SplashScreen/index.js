@@ -28,7 +28,7 @@ const SplashScreen = () => {
                     animation="fadeInUpBig"
                 >
                     <Text style={styles.title} >Continue With Us CRGU TT App</Text>
-                    <Text style={styles.text} >SIgn Up With Us Using Press On Get Started </Text>
+                    <Text style={styles.text} >Sign Up With Us Using Press On Get Started </Text>
                     <View style={styles.button}>
                         <TouchableOpacity
                             onPress={() => navigation.navigate('signInScreen')}

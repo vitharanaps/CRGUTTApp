@@ -52,7 +52,6 @@ const ViewAllStn = () => {
         const querySnapshot = await getDocs(q);
 
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setNewStn(list);

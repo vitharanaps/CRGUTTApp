@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import HomeScreen from '../Screens/AppScreens/HomeScreen';
 import ViewAllStn from '../Screens/AppScreens/ViewAllStn';
 import ViewStnDetails from '../Screens/AppScreens/ViewStnDetails';
+import Notifications from '../Screens/AppScreens/Notifications';
 import { useTheme } from '../theme/ThemeProvider';
 
 const HomeNavigation = () => {
@@ -30,7 +31,22 @@ const {colors} = useTheme();
                 fontSize:18
             },
             headerStyle:{
-                backgroundColor:"#5171ff",
+                backgroundColor:colors.header,
+            },
+            
+         }}
+         />
+          <HomeNav.Screen 
+        name="notification"
+         component={Notifications}
+         options={{
+            title:"Notifications",
+            headerTintColor:"#fff",
+            headerTitleStyle:{
+                fontSize:18
+            },
+            headerStyle:{
+                backgroundColor:colors.header,
             },
             
          }}

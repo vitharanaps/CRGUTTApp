@@ -18,7 +18,7 @@ import * as Animatable from "react-native-animatable";
 import { useNavigation } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
 import { useAuthContext } from "../../../context/AuthContext";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, verifyBeforeUpdateEmail } from "firebase/auth";
 import { auth } from "../../../firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -65,13 +65,17 @@ const SignInScreen = () => {
     await signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        setUserInfo(user);
-        AsyncStorage.setItem("userInfo", JSON.stringify(user));
+        if(user.emailVerified){
+          setUserInfo(user);
+          AsyncStorage.setItem("userInfo", JSON.stringify(user));
+        }else{
+          alert("Please verify Your Email Address")
+        }
+       
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(error.message);
         setLoginError(true);
       });
     setSignInLoading(false);
@@ -84,7 +88,6 @@ const SignInScreen = () => {
     });
   };
 
-  console.log(signInLoading);
   return (
     <View style={styles.conatiner}>
       {/* <ImageBackground 

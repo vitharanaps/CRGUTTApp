@@ -8,17 +8,19 @@ import "react-native-gesture-handler";
 import LineModelContextProvider from "./src/context/LineModelContext";
 import AuthContextProvider from "./src/context/AuthContext";
 import ThemeContextProvider from "./src/theme/ThemeProvider";
-
+import NotificationContextProvider from "./src/context/NotificationContext";
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContextProvider>
-        <LineModelContextProvider>
-          <ThemeContextProvider>
-          <RootNavigation />
-          </ThemeContextProvider>
-        </LineModelContextProvider>
+        <NotificationContextProvider>
+          <LineModelContextProvider>
+            <ThemeContextProvider>
+              <RootNavigation />
+            </ThemeContextProvider>
+          </LineModelContextProvider>
+        </NotificationContextProvider>
       </AuthContextProvider>
     </GestureHandlerRootView>
   );

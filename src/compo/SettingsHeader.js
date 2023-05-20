@@ -61,7 +61,6 @@ const SettingsHeader = () => {
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
           setpercentage(progress);
           switch (snapshot.state) {
             case "paused":

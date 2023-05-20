@@ -5,9 +5,9 @@ import {
   AntDesign,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../theme/ThemeProvider";
+import { TouchableOpacity } from "react-native";
 
 const UserList = ({ empData }) => {
 
@@ -72,7 +72,6 @@ const UserList = ({ empData }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingVertical: 5,
     paddingHorizontal: 10,
     flexDirection: "row",

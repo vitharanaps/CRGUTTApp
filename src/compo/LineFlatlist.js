@@ -6,7 +6,6 @@ import { TouchableOpacity } from "@gorhom/bottom-sheet";
 const LineFlatlist = () => {
   const height = Dimensions.get("window").height;
   const width = Dimensions.get("window").width;
-  console.log(item)
 
   
   return (

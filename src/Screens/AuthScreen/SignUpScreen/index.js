@@ -30,7 +30,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 const SignUpSchema = yup.object().shape({
   email: yup
@@ -80,8 +80,7 @@ const SignUpScreen = () => {
           email,
           password,
           { displayName: name }
-        );
-
+        )        
         const res1 = await setDoc(doc(db, "users", res.user.uid), {
           email: email,
           nameWithIn: name,
@@ -94,6 +93,11 @@ const SignUpScreen = () => {
           isUpdated: false,
           timeStamp: serverTimestamp(),
         });
+        
+        await sendEmailVerification(auth.currentUser);
+        alert("Verification Email Send")
+
+        
         navigation.navigate("permition");
 
       } catch (err) {

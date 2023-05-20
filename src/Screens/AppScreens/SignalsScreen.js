@@ -230,7 +230,7 @@ const SignalsScreen = () => {
               size={25}
               style={{ marginBottom: 5 }}
             />
-            <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
+            <Text style={[{ fontSize: 20, fontWeight: "700", marginLeft: 10 },{color : colors.text1} ]}>
               {lineName}
             </Text>
           </View>

@@ -69,7 +69,7 @@ return dayjs(convertedDate).fromNow(true)
             color: "#999999",
           }}
         >
-            Train Number {stn?.trainNo} changed, please Consider this stn,  STN No {stn?.stnNo}
+           This is Train Number {stn?.trainNo} STN and It Comes From  STN No {stn?.stnNo}
         </Text>
         <Text
           style={{ marginLeft: "auto", color: "darkgray", marginVertical: 3 }}

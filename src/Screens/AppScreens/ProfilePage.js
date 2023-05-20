@@ -1,4 +1,12 @@
-import { View, Text, Dimensions, Image, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Modal,
+  TouchableOpacity
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import SettingsHeader from "../../compo/SettingsHeader";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -12,12 +20,14 @@ import {
   EvilIcons,
 } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { ScrollView } from "react-native-gesture-handler";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { ActivityIndicator } from "react-native-paper";
 import call from "react-native-phone-call";
 import { useTheme } from "../../theme/ThemeProvider";
+import { Feather } from "react-native-vector-icons";
+import ImageViewer from "react-native-image-zoom-viewer";
 
 const ProfilePage = () => {
   const { colors } = useTheme();
@@ -28,6 +38,7 @@ const ProfilePage = () => {
   const route = useRoute();
   const userId = route?.params?.uid;
   const userName = route?.params?.userName;
+  const [modalOpen, setModalOpen] = useState(false);
 
   //get user details by uid
 
@@ -72,47 +83,17 @@ const ProfilePage = () => {
     call(args).catch(console.error);
   };
 
+  const images = [
+    {
+      url: userDetails?.profileImage,
+      props: {},
+    },
+  ];
+
   return (
     <View
       style={{ flex: 1, paddingBottom: 120, backgroundColor: colors.primary }}
     >
-      {/* <View style={{
-                height: height * 18 / 100,
-                backgroundColor: "#5171ff",
-                alignItems: "center",
-                paddingHorizontal: 20,
-            }} >
-                <View style={{
-                    alignItems: "center",
-                    flexDirection: "row",
-                    justifyContent:"space-between",
-
-                    flex: 1,
-                    width: "100%",
-                }}>
-                    <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            backgroundColor: "#fff",
-                            borderRadius: 50,
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}>
-                        <AntDesign name="arrowleft" size={25} style={{ fontWeight: "bold" }} color="black" />
-                    </TouchableOpacity>
-                    <Text style={{ 
-                        color:"#fff",
-                        fontSize: 18,
-                        fontWeight:"700"
-                     }}>Vitharana's Profile</Text>
-                    <Image source={{ uri: "https://images.unsplash.com/photo-1591258739299-5b65d5cbb235?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fG1hbiUyMGZhY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60" }}
-                        style={{ height: 70, width: 70, borderRadius: 50 }}
-                    />
-                </View>
-            </View> */}
-
       <ScrollView>
         {/* User Information */}
 
@@ -124,6 +105,7 @@ const ProfilePage = () => {
               borderRadius: 10,
               marginVertical: 18,
               marginHorizontal: 15,
+              zIndex: 20,
               ...styles.shadow,
             }}
           >
@@ -161,20 +143,32 @@ const ProfilePage = () => {
                   padding: 10,
                 }}
               >
-                <Image
-                  source={
-                    userDetails?.profileImage ? (
-                      { uri: userDetails?.profileImage }
-                    ) : loading ? (
-                      <View>
-                        <ActivityIndicator color="gray" size="large" />
-                      </View>
-                    ) : (
-                      require("../../../assets/avatar.png")
-                    )
-                  }
-                  style={{ width: 100, height: 100, borderRadius: 50 }}
-                />
+                <TouchableOpacity
+                  onPress={() => setModalOpen(true)}
+                  style={{
+                    padding: 15,
+                    borderRadius: 10,
+                    gap: 5,
+
+                    //  height: scrHeight*0.60,
+                    ...styles.shadow,
+                  }}
+                >
+                  <Image
+                    source={
+                      userDetails?.profileImage ? (
+                        { uri: userDetails?.profileImage }
+                      ) : loading ? (
+                        <View>
+                          <ActivityIndicator color="gray" size="large" />
+                        </View>
+                      ) : (
+                        require("../../../assets/avatar.png")
+                      )
+                    }
+                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                  />
+                </TouchableOpacity>
               </View>
 
               <View
@@ -213,24 +207,26 @@ const ProfilePage = () => {
                   {userDetails?.email}
                 </Text>
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginVertical: 5,
-                  padding: 10,
-                  justifyContent: "flex-start",
-                }}
-              >
-                <EvilIcons
-                  name="envelope"
-                  color="#05375a"
-                  size={25}
-                  style={{ paddingRight: 15, width: 40 }}
-                />
-                <Text style={{ fontSize: 15, color: colors.text2 }}>
-                  {userDetails?.address}
-                </Text>
-              </View>
+              {userDetails?.address && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginVertical: 5,
+                    padding: 10,
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <EvilIcons
+                    name="envelope"
+                    color="#05375a"
+                    size={25}
+                    style={{ paddingRight: 15, width: 40 }}
+                  />
+                  <Text style={{ fontSize: 15, color: colors.text2 }}>
+                    {userDetails?.address}
+                  </Text>
+                </View>
+              )}
               <View
                 style={{
                   flexDirection: "row",
@@ -255,7 +251,7 @@ const ProfilePage = () => {
                   marginVertical: 5,
                   padding: 10,
                   justifyContent: "flex-start",
-                  alignItems:"center"
+                  alignItems: "center",
                 }}
               >
                 <Entypo
@@ -268,58 +264,54 @@ const ProfilePage = () => {
                   {userDetails?.mobileNo1}
                 </Text>
                 <TouchableOpacity
-                  style={{ marginLeft: 50,
-                    padding:8,
-                    backgroundColor: "lightgray",
-                    borderRadius: 10,
-                    alignItems: "center",
-                    justifyContent: "center", }}
-                  onPress={() => triggerCall(userDetails?.mobileNo1)}
-                >
-                  <Entypo
-                    name="phone"
-                    color="#31c42a"
-                    size={22}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginVertical: 5,
-                  padding: 10,
-                  alignItems:"center",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <Entypo
-                  name="mobile"
-                  color="#05375a"
-                  size={22}
-                  style={{ paddingRight: 15, width: 40 }}
-                />
-                <Text style={{ fontSize: 15, color: colors.text2 }}>
-                  {userDetails?.mobileNo2}
-                </Text>
-                <TouchableOpacity
                   style={{
                     marginLeft: 50,
-                    padding:8,
+                    padding: 8,
                     backgroundColor: "lightgray",
                     borderRadius: 10,
                     alignItems: "center",
                     justifyContent: "center",
                   }}
-                  onPress={() => triggerCall(userDetails?.mobileNo2)}
+                  onPress={() => triggerCall(userDetails?.mobileNo1)}
                 >
-                  <Entypo
-                    name="phone"
-                    color="#31c42a"
-                    size={22}
-                  />
+                  <Entypo name="phone" color="#31c42a" size={22} />
                 </TouchableOpacity>
               </View>
+
+              {userDetails?.mobileNo2 && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginVertical: 5,
+                    padding: 10,
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Entypo
+                    name="mobile"
+                    color="#05375a"
+                    size={22}
+                    style={{ paddingRight: 15, width: 40 }}
+                  />
+                  <Text style={{ fontSize: 15, color: colors.text2 }}>
+                    {userDetails?.mobileNo2}
+                  </Text>
+                  <TouchableOpacity
+                    style={{
+                      marginLeft: 50,
+                      padding: 8,
+                      backgroundColor: "lightgray",
+                      borderRadius: 10,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onPress={() => triggerCall(userDetails?.mobileNo2)}
+                  >
+                    <Entypo name="phone" color="#31c42a" size={22} />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -363,24 +355,26 @@ const ProfilePage = () => {
                 padding: 10,
               }}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginVertical: 5,
-                  padding: 10,
-                  justifyContent: "flex-start",
-                }}
-              >
-                <AntDesign
-                  name="home"
-                  color="#05375a"
-                  size={22}
-                  style={{ paddingRight: 15, width: 40 }}
-                />
-                <Text style={{ fontSize: 15, color: colors.text2 }}>
-                  {userDetails?.homeStation}
-                </Text>
-              </View>
+              {userDetails?.homeStation && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginVertical: 5,
+                    padding: 10,
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <AntDesign
+                    name="home"
+                    color="#05375a"
+                    size={22}
+                    style={{ paddingRight: 15, width: 40 }}
+                  />
+                  <Text style={{ fontSize: 15, color: colors.text2 }}>
+                    {userDetails?.homeStation}
+                  </Text>
+                </View>
+              )}
               <View
                 style={{
                   flexDirection: "row",
@@ -405,6 +399,40 @@ const ProfilePage = () => {
         </View>
         <View></View>
       </ScrollView>
+
+      <Modal
+        visible={modalOpen}
+        transparent={true}
+        onRequestClose={()=>setModalOpen(false)}
+
+        style={{ position: "relative" }}
+      >
+        <ImageViewer imageUrls={images} />
+      
+          <TouchableOpacity 
+           style={{
+            backgroundColor: "white",
+            width: 50,
+            height: 50,
+            borderRadius: 50,
+            position: "absolute",
+            left: 30,
+            top: 40,
+            zIndex: 1005,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onPress={
+            ()=>setModalOpen(false)
+          }
+          >
+         
+            <Feather
+              name="arrow-left"
+              style={{ fontSize: 30, fontWeight: "500" }}
+            />
+          </TouchableOpacity>
+      </Modal>
     </View>
   );
 };

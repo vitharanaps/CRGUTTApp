@@ -13,12 +13,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import {Feather} from "react-native-vector-icons";
+import { Feather } from "react-native-vector-icons";
 import { useTheme } from "../../theme/ThemeProvider";
 
 const ViewStnDetails = () => {
   const route = useRoute();
-  const {colors} = useTheme()
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const stnId = route?.params?.stnId;
   const trainNo = route?.params?.trainNo;
@@ -67,7 +67,7 @@ const ViewStnDetails = () => {
   ];
 
   return (
-    <View style={[styles.container, {backgroundColor: colors.primary}]}>
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
       <View
         style={{
           backgroundColor: colors.secondary,
@@ -126,6 +126,36 @@ const ViewStnDetails = () => {
             paddingVertical: 5,
           }}
         >
+          <Text style={styles.stnDetailsText}>STN Date </Text>
+          <Text style={styles.stnDetailsTextRight}>
+            {" "}
+            {
+            stnDetails?.stnReleasedDate
+            }
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignContent: "center",
+            //     justifyContent: "space-around",
+            paddingVertical: 5,
+          }}
+        >
+          <Text style={styles.stnDetailsText}>Form No </Text>
+          <Text style={styles.stnDetailsTextRight}>
+            {" "}
+            {stnDetails?.formTrainNo  }
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignContent: "center",
+            //     justifyContent: "space-around",
+            paddingVertical: 5,
+          }}
+        >
           <Text style={styles.stnDetailsText}>Updated At </Text>
           <Text style={styles.stnDetailsTextRight}>
             {" "}
@@ -153,7 +183,10 @@ const ViewStnDetails = () => {
           style={{ width: "100%", aspectRatio: 4 / 3 }}
         />
       </TouchableOpacity>
-      <Modal visible={modalOpen} transparent={true}>
+      <Modal 
+      visible={modalOpen}
+       transparent={true}
+       onRequestClose={()=>setModalOpen(false)}>
         <TouchableOpacity
           onPress={() => setModalOpen(false)}
           style={{
@@ -169,9 +202,10 @@ const ViewStnDetails = () => {
             justifyContent: "center",
           }}
         >
-         
-          <Feather name="arrow-left" style={{ fontSize: 30, fontWeight: "500",  }}  />
-
+          <Feather
+            name="arrow-left"
+            style={{ fontSize: 30, fontWeight: "500" }}
+          />
         </TouchableOpacity>
         <ImageViewer imageUrls={images} />
       </Modal>

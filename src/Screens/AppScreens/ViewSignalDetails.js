@@ -66,7 +66,6 @@ const ViewSignalDetails = () => {
       props: {},
     },
   ];
-console.log(signalDetails)
   return (
     <View style={[styles.container,{backgroundColor : colors.primary}]}>
       <View
@@ -152,7 +151,12 @@ console.log(signalDetails)
           style={{ width: "100%", aspectRatio: 4 / 3 }}
         />
       </TouchableOpacity>
-      <Modal visible={modalOpen} transparent={true}>
+      <Modal 
+      visible={modalOpen}
+       transparent={true}
+       onRequestClose={()=>setModalOpen(false)}
+
+       >
         <TouchableOpacity
           onPress={() => setModalOpen(false)}
           style={{

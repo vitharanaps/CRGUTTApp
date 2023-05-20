@@ -11,6 +11,7 @@ import PermitionPage from '../Screens/AuthScreen/PermitionPage'
 import SettingsNavigation from './SettingsNavigation'
 import EditUser from '../Screens/AppScreens/EditUser'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { StatusBar } from 'expo-status-bar';
 
 const RootNavigation = () => {
   const { usersDoc, userInfo } = useAuthContext();
@@ -23,10 +24,8 @@ const RootNavigation = () => {
         {userInfo ?
           usersDoc?.isConfirm ?
             usersDoc?.isUpdated ?
-              // <AppNavigation />
               <RootStack.Screen name="AppNavigation" component={AppNavigation} />
               :
-              // <SettingsNavigation />
               <>
               <RootStack.Screen name="SettingNav" component={SettingsNavigation} />
               <RootStack.Screen name="AppNavigation" component={AppNavigation} />
@@ -35,13 +34,13 @@ const RootNavigation = () => {
             :
             <RootStack.Screen name="Permition" component={PermitionPage} />
           :
-          // <AuthNavigation />
           <RootStack.Screen name="AuthNavigation" component={AuthNavigation} />
-
         }
       </RootStack.Navigator>
+      <StatusBar style="light" />
 
     </NavigationContainer>
+    
   )
 }
 

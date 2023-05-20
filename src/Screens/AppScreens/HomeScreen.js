@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -19,6 +19,8 @@ import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
+import { StatusBar } from "expo-status-bar";
+import { useAuthContext } from "../../context/AuthContext";
 
 const HomeScreen = () => {
   const scrHeight = Dimensions.get("window").height;
@@ -29,9 +31,8 @@ const HomeScreen = () => {
   //get new 5Stn
 
   const {dark,colors} = useTheme();
+const { loading } =useAuthContext()
 
-
-console.log("setSchema", dark)
   useEffect(() => {
     const fetchData = async () => {
       let list = [];
@@ -41,7 +42,6 @@ console.log("setSchema", dark)
         const querySnapshot = await getDocs(q);
 
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setNewStns(list);
@@ -51,7 +51,7 @@ console.log("setSchema", dark)
     };
     fetchData();
   }, []);
-
+  
   return (
     <View style={[styles.container, dark ? {backgroundColor: colors.primary} : {backgroundColor : "#5171ff"}]}>
       <View style={styles.header}>
@@ -78,7 +78,7 @@ console.log("setSchema", dark)
           </Text>
           <View>
             <TextInput
-              placeholder="Search STNs"
+              placeholder="Enter Train Number"
               onChangeText={(text) => setSearch(text)}
               style={{
                 width: "100%",

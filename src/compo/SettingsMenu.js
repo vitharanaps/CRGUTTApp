@@ -10,7 +10,6 @@ const SettingsMenu = () => {
   const navigation = useNavigation();
   const { logout } = useAuthContext();
   const { dark, colors, setScheme } = useTheme();
-  // const [dark, setDark] = useState(false)
 
   const Handlelogout = () => {
     logout();
@@ -112,7 +111,8 @@ const SettingsMenu = () => {
           <MaterialIcons name="keyboard-arrow-right" color="gray" size={35} />
         </View>
       </TouchableOpacity>
-      <View
+      
+      {/* <View
         style={{
           backgroundColor: colors.secondary,
           flexDirection: "row",
@@ -138,7 +138,7 @@ const SettingsMenu = () => {
         <View>
           <Switch value={dark} onValueChange={toggleMode} />
         </View>
-      </View>
+      </View> */}
 
       <TouchableOpacity
         onPress={Handlelogout}

@@ -18,7 +18,7 @@ const Employee = () => {
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-const {colors} = useTheme();
+  const { colors } = useTheme();
   ///get data from database
 
   useEffect(() => {
@@ -31,24 +31,19 @@ const {colors} = useTheme();
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
           list.push({ id: doc.id, ...doc.data() });
-
-          //    console.log(doc.id, " => ", doc.data());
         });
         setEmployers(list);
-      } catch (err) {
-        //    console.log(err);
-      }
+      } catch (err) {}
     };
     fetchData();
   }, [search]);
-
 
   const changeSearchText = (e) => {
     setSearch(e);
   };
 
   return (
-  <View style={[styles.container, {backgroundColor :colors.primary}]}>
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
       <View
         style={{
           backgroundColor: colors.secondary,
@@ -85,7 +80,12 @@ const {colors} = useTheme();
           />
         </View>
       </View>
-      <View style={{ marginBottom: 480 }}>
+      <View
+        style={{
+          paddingBottom: 300,
+          // marginBottom : (employers.length -1)
+        }}
+      >
         <Text
           style={{
             fontSize: 15,
@@ -97,20 +97,21 @@ const {colors} = useTheme();
           {/* Search results ({}) */}
         </Text>
         <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-          {employers.filter((emp) => {
+          {employers
+            .filter((emp) => {
               return search?.toLowerCase() === ""
                 ? emp
-                : emp?.nameWithIn.toLowerCase().includes(search?.toLowerCase())
-              }).map((emp) => (
+                : emp?.nameWithIn.toLowerCase().includes(search?.toLowerCase());
+            })
+            .map((emp) => (
               <UserList empData={emp} key={emp?.id} />
-            )
-            )}
+            ))}
         </ScrollView>
       </View>
     </View>
   );
 };
 const styles = StyleSheet.create({
-  container: {},
+  container: { flex: 1 },
 });
 export default Employee;

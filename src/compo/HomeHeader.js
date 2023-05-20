@@ -6,16 +6,24 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthContext } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNotificationContext } from "../context/NotificationContext";
 
 const HomeHeader = () => {
   const height = Dimensions.get("window").height;
   const { colors } = useTheme();
-  const { usersDoc } = useAuthContext();
-  console.log(usersDoc);
+  const { usersDoc, userInfo } = useAuthContext();
+  const navigation = useNavigation()
+ const {numOfNewNotifications} = useNotificationContext();
+
+  
   return (
     <View
       style={[
@@ -42,12 +50,15 @@ const HomeHeader = () => {
         </Text>
       </View>
       <View style={styles.iconContainer}>
-        <Ionicons
+        <TouchableOpacity onPress={()=>navigation.navigate("notification")}>
+           <Ionicons
           name="notifications"
           size={30}
           color="#fff"
           style={{ marginRight: 10, position: "relative" }}
         />
+        </TouchableOpacity>
+       
         <Image
           source={
             usersDoc?.profileImage
@@ -69,7 +80,7 @@ const HomeHeader = () => {
             right: 45,
           }}
         >
-          <Text style={{ color: "#fff" }}>1</Text>
+          <Text style={{ color: "#fff" }}>{numOfNewNotifications}</Text>
         </View>
       </View>
     </View>
