@@ -6,6 +6,7 @@ import ViewAllStn from '../Screens/AppScreens/ViewAllStn';
 import ViewStnDetails from '../Screens/AppScreens/ViewStnDetails';
 import Notifications from '../Screens/AppScreens/Notifications';
 import { useTheme } from '../theme/ThemeProvider';
+import Favorite from '../Screens/AppScreens/Favorite';
 
 const HomeNavigation = () => {
 const {colors} = useTheme();
@@ -41,6 +42,21 @@ const {colors} = useTheme();
          component={Notifications}
          options={{
             title:"Notifications",
+            headerTintColor:"#fff",
+            headerTitleStyle:{
+                fontSize:18
+            },
+            headerStyle:{
+                backgroundColor:colors.header,
+            },
+            
+         }}
+         />
+           <HomeNav.Screen 
+        name="favorite"
+         component={Favorite}
+         options={{
+            title:"Your Favorite Stns",
             headerTintColor:"#fff",
             headerTitleStyle:{
                 fontSize:18

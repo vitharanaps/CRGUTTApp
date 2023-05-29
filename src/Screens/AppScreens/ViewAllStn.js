@@ -23,91 +23,22 @@ import AllStn from "../../compo/AllStn";
 import { useRoute } from "@react-navigation/native";
 import { ActivityIndicator } from "react-native-paper";
 import { useTheme } from "../../theme/ThemeProvider";
+import { useStnContext } from "../../context/StnContext";
 const ViewAllStn = () => {
 
   const scrHeight = Dimensions.get("screen").height;
   const {colors} = useTheme();
+  const { search,setSearch,loading,filteredData} = useStnContext();
 
-  // console.log(scrWidth)
-  //get new 5Stn
-  const [allStn, setNewStn] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const route = useRoute();
-  const searchText = route?.params?.searchText;
-  const [loading, setLoading] = useState(false);
-
-  const [search, setSearch] = useState(searchText || "");
-
-
-  
-  useEffect(() => {
-    const fetchData = async () => {
-
-      let list = [];
-      try {
-        setLoading(true);
-
-        const optionsRef = collection(db, "stns");
-        const q = query(optionsRef, orderBy("timeStamp", "desc"));
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        setNewStn(list);
-        setLoading(false);
-
-        // setFilteredData(list)
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, []);
-
-  //Filter Stn
-
-  useEffect(() => {
-    if (!searchText) {
-      return;
-    }
-    const filterSearch = () => {
-      setLoading(true);
-
-      setFilteredData(
-        search === ""
-          ? allStn
-          : allStn?.filter((dt) =>
-              dt.trainNo.toLowerCase().includes(search.toLowerCase())
-            )
-      );
-      setLoading(false);
-    };
-    filterSearch();
-  }, [allStn]);
-
-  useEffect(() => {
-    const filterSearch = () => {
-      setLoading(true);
-      setFilteredData(
-        search === ""
-          ? allStn
-          : allStn?.filter((dt) =>
-              dt.trainNo.toLowerCase().includes(search.toLowerCase())
-            )
-      );
-      setLoading(false);
-    };
-    filterSearch();
-  }, [search]);
-
+  // const route = useRoute();
+  // setSearchText(route?.params?.searchText);
 
   return (
     <View style={[styles.container, {backgroundColor :colors.primary}]}>
       <View style={[styles.searchContainer,{backgroundColor :colors.secondary} , { ...styles.shadow }]}>
         <TextInput
-          placeholder={search}
-          value={search}
+          placeholder="Enter Train Number"
+                    value={search}
           onChangeText={(text) => setSearch(text)}
           style={{
             width: "100%",

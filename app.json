@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CRGU TT App",
-    "slug": "crguttapplication",
+    "slug": "crguttapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
@@ -13,15 +13,18 @@
       "**/*"
     ],
     "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "supportsTablet": true,
       "userInterfaceStyle": "automatic"
     },
     "android": {
-      "package": "com.crguttapplication",
+      "package": "com.crguttapp",
       "userInterfaceStyle": "automatic",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#FFFFFF"
       }
     },
@@ -30,7 +33,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "31ad2d5b-0daa-4bdd-91aa-906004042fbf"
+        "projectId": "250c1dfd-d606-47b1-8cbd-cc8dbfce3155"
       }
     }
   }

@@ -9,6 +9,7 @@ import LineModelContextProvider from "./src/context/LineModelContext";
 import AuthContextProvider from "./src/context/AuthContext";
 import ThemeContextProvider from "./src/theme/ThemeProvider";
 import NotificationContextProvider from "./src/context/NotificationContext";
+import StnContextProvider from "./src/context/StnContext";
 
 export default function App() {
   return (
@@ -17,7 +18,9 @@ export default function App() {
         <NotificationContextProvider>
           <LineModelContextProvider>
             <ThemeContextProvider>
+              <StnContextProvider>
               <RootNavigation />
+              </StnContextProvider>
             </ThemeContextProvider>
           </LineModelContextProvider>
         </NotificationContextProvider>

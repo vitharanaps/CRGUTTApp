@@ -6,9 +6,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  ScrollView,
   Dimensions,
-  FlatList,
   useColorScheme,
 } from "react-native";
 import HomeHeader from "../../compo/HomeHeader";
@@ -21,7 +19,9 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
 import { useAuthContext } from "../../context/AuthContext";
-
+import { FlatList } from "react-native-gesture-handler";
+import { ScrollView } from 'react-native-gesture-handler';
+import { useStnContext } from "../../context/StnContext";
 const HomeScreen = () => {
   const scrHeight = Dimensions.get("window").height;
 
@@ -30,8 +30,8 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   //get new 5Stn
 
-  const {dark,colors} = useTheme();
-const { loading } =useAuthContext()
+  const { dark, colors } = useTheme();
+  const { loading } = useAuthContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,13 +51,25 @@ const { loading } =useAuthContext()
     };
     fetchData();
   }, []);
-  
+
+  const handleSearch = () =>{
+    navigation.navigate("viewAll");
+  }
+ 
+
   return (
-    <View style={[styles.container, dark ? {backgroundColor: colors.primary} : {backgroundColor : "#5171ff"}]}>
+    <View
+      style={[
+        styles.container,
+        dark
+          ? { backgroundColor: colors.primary }
+          : { backgroundColor: "#5171ff" },
+      ]}
+    >
       <View style={styles.header}>
         <HomeHeader />
       </View>
-      <View style={[styles.footer,{backgroundColor : colors.primary } ]}>
+      <View style={[styles.footer, { backgroundColor: colors.primary }]}>
         <Animatable.View
           animation="bounceIn"
           style={{
@@ -72,12 +84,13 @@ const { loading } =useAuthContext()
               fontSize: 18,
               fontWeight: "600",
               color: "#748c94",
-            }}
+              paddingVertical:10
+                        }}
           >
-            Search STNs
+            View All STNs
           </Text>
           <View>
-            <TextInput
+            {/* <TextInput
               placeholder="Enter Train Number"
               onChangeText={(text) => setSearch(text)}
               style={{
@@ -90,17 +103,11 @@ const { loading } =useAuthContext()
                 marginVertical: 15,
                 color: "gray",
               }}
-            />
+            /> */}
             <TouchableOpacity
-              disabled={search === "" ? true : false}
-              onPress={() =>
-                navigation.navigate("viewAll", { searchText: search })
-              }
+              onPress={handleSearch}
               style={[
                 styles.findStnButton,
-                search === ""
-                  ? { backgroundColor: "gray" }
-                  : { backgroundColor: "#5171ff" },
               ]}
             >
               <FontAwesome
@@ -125,65 +132,59 @@ const { loading } =useAuthContext()
             </TouchableOpacity>
           </View>
         </Animatable.View>
-
-        <View
-          style={{
-            backgroundColor: colors.secondary,
-            padding: 15,
-            borderRadius: 10,
-            height: scrHeight * 0.6,
-            marginVertical: 18,
-            ...styles.shadow,
-          }}
-        >
+         
           <View
             style={{
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexDirection: "row",
-              marginBottom: 10,
+              backgroundColor: colors.secondary,
+              padding: 15,
+              borderRadius: 10,
+              height: scrHeight * 0.6,
+              marginVertical: 18,
+              ...styles.shadow,
             }}
           >
-            <Text
+            <View
               style={{
-                fontSize: 18,
-                fontWeight: "600",
-                color: "#748c94",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexDirection: "row",
+                marginBottom: 10,
               }}
             >
-              Special Notifications
-            </Text>
-            {/* <TouchableOpacity
-              onPress={() => navigation.navigate("viewAll",{ searchText: "" } )}
-              style={{}}
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "600",
+                  color: "#748c94",
+                }}
+              >
+                Special Notifications
+              </Text>
+            </View>
+            <View
+              style={[
+                {
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginVertical: 5,
+                },
+                scrHeight <= 665
+                  ? { paddingBottom: 120 }
+                  : { paddingBottom: 70 },
+              ]}
             >
-              <Text style={{ textDecorationLine: "underline" }}>View All</Text>
-            </TouchableOpacity> */}
+              {/* Flat List Component */}
+              <FlatList
+                nestedScrollEnabled ={true}
+                data={newStns}
+                renderItem={({ item }) => <HomePageStn stn={item} />}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                style={{ width: "99%", height: "95%" }}
+              />
+            </View>
+         
           </View>
-          {/* <ScrollView showsVerticalScrollIndicator={false} > */}
-
-          <View
-            style={[
-              {
-                alignItems: "center",
-                justifyContent: "center",
-                marginVertical: 5,
-              },
-              scrHeight <= 665 ? { paddingBottom: 120 } : {paddingBottom :70},
-            ]}
-          >
-            {/* Flat List Component */}
-
-            <FlatList
-              data={newStns}
-              renderItem={({ item }) => <HomePageStn stn={item} />}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              style={{ width: "99%", height: "95%" }}
-            />
-          </View>
-          {/* </ScrollView> */}
-        </View>
       </View>
     </View>
   );
@@ -191,7 +192,7 @@ const { loading } =useAuthContext()
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-   // backgroundColor: "#5171ff",
+    // backgroundColor: "#5171ff",
     opacity: 60,
   },
   header: {
@@ -199,8 +200,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     flex: 11,
-  //  backgroundColor: "#f3f6f4",
-  // backgroundColor : colors.primary,
+    //  backgroundColor: "#f3f6f4",
+    // backgroundColor : colors.primary,
     paddingVertical: 25,
     paddingHorizontal: 15,
   },
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   findStnButton: {
-     backgroundColor: "#5171ff",
+    backgroundColor: "#5171ff",
     width: "100%",
     height: 40,
     borderRadius: 10,

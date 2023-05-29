@@ -18,11 +18,18 @@ import * as Animatable from "react-native-animatable";
 import { useNavigation } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
 import { useAuthContext } from "../../../context/AuthContext";
-import { signInWithEmailAndPassword, verifyBeforeUpdateEmail } from "firebase/auth";
-import { auth } from "../../../firebase";
+import {
+  signInWithEmailAndPassword,
+  verifyBeforeUpdateEmail,
+} from "firebase/auth";
+import { auth, db } from "../../../firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import * as SecureStore from "expo-secure-store";
 
 const SignInScreen = () => {
+  const DEVICE_ID_KEY = "deviceId";
+
   const navigation = useNavigation();
 
   const { setUserInfo } = useAuthContext();
@@ -31,6 +38,7 @@ const SignInScreen = () => {
   const [viewLoginError, setviewLoginError] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [signInLoading, setSignInLoading] = useState(false);
+  const [getUserDetailsForSignin, setGetUserDetailsForSignin] = useState({});
 
   const [data, setData] = useState({
     Email: "",
@@ -60,18 +68,55 @@ const SignInScreen = () => {
 
     setviewLoginError(false);
   };
+
+  const getUserDetails = async (userId) => {
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  };
+  const updateDeviceId = async (userId) => {
+    let deviceId = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+    const updateDeviceIdRef = doc(db, "users", userId);
+
+    await updateDoc(updateDeviceIdRef, {
+      uniqueDeviceId: deviceId,
+    });
+  };
+
   const handleLogin = async (email, password) => {
     setSignInLoading(true);
+    let deviceId = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+    console.log("d id", deviceId);
     await signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const user = userCredential.user;
-        if(user.emailVerified){
-          setUserInfo(user);
-          AsyncStorage.setItem("userInfo", JSON.stringify(user));
-        }else{
-          alert("Please verify Your Email Address")
+        if (user.emailVerified) {
+          const getUserDetailsForUniqueDeviceId = await getUserDetails(
+            user.uid
+          );
+         
+
+          if (getUserDetailsForUniqueDeviceId?.uniqueDeviceId) {
+            if (getUserDetailsForUniqueDeviceId?.uniqueDeviceId == deviceId) {
+              setUserInfo(user);
+              AsyncStorage.setItem("userInfo", JSON.stringify(user));
+            } else {
+              alert("You can't Access this account using this Device");
+            }
+          } else {
+            await updateDeviceId(user.uid);
+            setUserInfo(user);
+            AsyncStorage.setItem("userInfo", JSON.stringify(user));
+          }
+        } else {
+          alert("Please verify Your Email Address");
         }
-       
       })
       .catch((error) => {
         const errorCode = error.code;
