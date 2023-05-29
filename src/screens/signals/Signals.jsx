@@ -84,7 +84,6 @@ const Signals = () => {
       try {
         const querySnapshot = await getDocs(collection(db, "signals"));
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -142,7 +141,6 @@ const Signals = () => {
     try {
       const querySnapshot = await getDocs(collection(db, "signals"));
       querySnapshot.forEach((doc) => {
-        console.log(doc.data);
         list.push({ id: doc.id, ...doc.data() });
       });
       setData(list);
@@ -171,7 +169,6 @@ const Signals = () => {
       alert("Please Select Signal Image");
     } else {
       if (countSignalNo <= 0) {
-        console.log("sig count", countSignalNo)
 
         try {
           const docRef = await addDoc(collection(db, "signals"), {
@@ -260,7 +257,6 @@ const Signals = () => {
     };
     fetchLineToSelectBox();
   }, []);
-  console.log("select list", linesFromDb);
   //Fetch Line To select Box
 
   useEffect(() => {
@@ -300,10 +296,10 @@ return dayjs(convertedDate).fromNow(true)
     navigate(`/signals/${id}`)
    };
 
-   const [loadValue, setLoadValue] = useState(3)
+   const [loadValue, setLoadValue] = useState(30)
 
    const loadMore = () =>{
-    setLoadValue((prevValue)=> prevValue + 3)
+    setLoadValue((prevValue)=> prevValue + 30)
   }
   
   return (

@@ -18,6 +18,7 @@ import { Link, useLocation } from "react-router-dom";
 import TrafficIcon from "@mui/icons-material/Traffic";
 import { AuthContext } from "../../context/AuthContext";
 import { Home } from "@mui/icons-material";
+import WarningIcon from "@mui/icons-material/Warning";
 
 
 const SideBar = () => {
@@ -107,6 +108,20 @@ const SideBar = () => {
                 <Person4Icon />
               </ListItemIcon>
               <ListItemText primary="User" />
+            </ListItemButton>
+          </Link>
+          <Link to="/error" style={{ textDecoration: "none", color: "black" }}>
+            <ListItemButton
+              sx={
+                path === "error"
+                  ? style.listButtonStyleActive
+                  : style.listButtonStyle
+              }
+            >
+              <ListItemIcon>
+                <WarningIcon />
+              </ListItemIcon>
+              <ListItemText primary="Error Reports" />
             </ListItemButton>
           </Link>
         </List>

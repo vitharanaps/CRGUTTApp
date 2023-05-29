@@ -515,6 +515,23 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                       </tr>
+                      <tr height="40px">
+                        <td>
+                          {" "}
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            Stn Released Date{" "}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            {" "}
+                            {
+//stnData?.timeStamp.toString()
+                          stnData?.stnReleasedDate
+                          }
+                          </Typography>
+                        </td>
+                      </tr>
                     </table>
                   </Box>
                 </Box>

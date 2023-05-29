@@ -36,6 +36,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -43,15 +44,19 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { format } from "date-fns";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+import "./styles.css";
 
 const AddSignalSchema = yup.object().shape({
   stnNo: yup.string().required("Stn No Required"),
   formNo: yup.string().required("Form Train No Required"),
+  stnReleasedDate: yup.string().required("Stn Released Date Required"),
 
 });
 
@@ -75,6 +80,7 @@ const Stns = () => {
   const [trainFromDb, setTrainFromDb] = useState([]);
   const [loadingTrainToSelect, setLoadingTrainToSelect] = useState(false);
 
+
   const navigate = useNavigate();
   const handleChangeLine = (e) => {
     setLine(e.target.value);
@@ -97,7 +103,6 @@ const Stns = () => {
       try {
         const querySnapshot = await getDocs(collection(db, "stns"));
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -155,7 +160,6 @@ const Stns = () => {
     try {
       const querySnapshot = await getDocs(collection(db, "stns"));
       querySnapshot.forEach((doc) => {
-        console.log(doc.data);
         list.push({ id: doc.id, ...doc.data() });
       });
       setData(list);
@@ -167,7 +171,7 @@ const Stns = () => {
 
   const addStn = async (values, resetForm) => {
     setLoadingInsertStns(true);
-    const { stnNo,formNo } = values;
+    const { stnNo, formNo,stnReleasedDate } = values;
 
     //check Train No is Unique
     const qTrainNo = query(
@@ -182,7 +186,8 @@ const Stns = () => {
       alert("Please Select Stn Image");
     } else if (countTrain > 0) {
       alert("STN Available for This Train Number");
-    } else {
+    }
+    else {
       try {
         const docRef = await addDoc(collection(db, "stns"), {
           stnNo: stnNo,
@@ -193,8 +198,10 @@ const Stns = () => {
           destTime: trainDetail?.destTime,
           line: trainDetail.line,
           lineNo: trainDetail.lineNo,
-          formTrainNo :formNo,
+          formTrainNo: formNo,
+          stnReleasedDate : stnReleasedDate,
           stnImage: downloardableUrl,
+          like:[],
           timeStamp: serverTimestamp(),
         });
         resetForm((values = ""));
@@ -204,7 +211,7 @@ const Stns = () => {
         setDownloardableUrl(null);
         setTrainDetail(null);
         //create notification function stnNo pass to function
-        createNotificationFunction(stnNo);
+        createNotificationFunction(stnNo, docRef?.id);
       } catch (err) {
         console.log(err);
       }
@@ -214,12 +221,13 @@ const Stns = () => {
 
   //create Notification function
 
-  const createNotificationFunction = async (stnNo) => {
+  const createNotificationFunction = async (stnNo,stnId) => {
     try {
-      const docRef = await addDoc(collection(db, "Notification"), {
-        title: trainDetail?.trainNo + "  From Stn No " + stnNo,
-        description: `Created a New Stn for Train No ${trainDetail?.trainNo}`,
+     await addDoc(collection(db, "Notification"), {
+        title: trainDetail?.trainNo ,
+        description: `Created a New Stn for Train No ${trainDetail?.trainNo} From STN No ${stnNo}`,
         createdBy: currentUser?.nameWithIn,
+        stnId : stnId,
         view: [],
         timeStamp: serverTimestamp(),
       });
@@ -293,7 +301,6 @@ const Stns = () => {
     fetchLineToSelectBox();
   }, []);
 
-  console.log("line", linesFromDb);
   //Fetch Line To select Box
 
   useEffect(() => {
@@ -322,8 +329,12 @@ const Stns = () => {
     const fetchTrainToSelectBox = async () => {
       let list = [];
       try {
-        const querySnapshot = await getDocs(collection(db, "trains"));
-        querySnapshot.forEach((doc) => {
+      //  const querySnapshot = await getDocs(collection(db, "trains"), orderBy("trainNo", "desc"));
+       
+      const optionsRef = collection(db, "trains");
+      const q = query(optionsRef, orderBy("trainNo", "asc"));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
           list.push({ id: doc.id, ...doc.data() });
         });
         setTrainFromDb(list);
@@ -368,9 +379,9 @@ const Stns = () => {
     navigate(`/stn/${id}`);
   };
 
-  const [loadValue, setLoadValue] = useState(3);
+  const [loadValue, setLoadValue] = useState(30);
   const loadMore = () => {
-    setLoadValue((prevValue) => prevValue + 3);
+    setLoadValue((prevValue) => prevValue + 30);
   };
   return (
     <Box>
@@ -431,24 +442,6 @@ const Stns = () => {
                     </MenuItem>
                   ))}
                 </Select>
-                {/*}  Home Station
-                    <Select
-                      size="small"
-                      value={homeStation}
-                      onChange={handleChangeHomeStation}
-                    >
-                      <MenuItem value="">Select Home Station</MenuItem>
-    
-                      <MenuItem value="GLE">GLE</MenuItem>
-                      <MenuItem value="MTR">MTR</MenuItem>
-                    </Select>
-                    User Role
-                    <Select size="small" value={role} onChange={handleChangeRole}>
-                      <MenuItem value="">Select Role</MenuItem>
-    
-                      <MenuItem value="admin">Admin</MenuItem>
-                      <MenuItem value="user">User</MenuItem>
-                    </Select> */}
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Button
@@ -547,7 +540,8 @@ const Stns = () => {
       <Formik
         initialValues={{
           stnNo: "",
-          formNo : ""
+          formNo: "",
+          stnReleasedDate : ""
         }}
         validateOnMount={true}
         // onSubmit={(values, {resetForm})=>{
@@ -703,6 +697,26 @@ const Stns = () => {
                       </Typography>
                     ) : null}
                   </div>
+                  <div className="stn-released-date">
+                      <Box>
+
+                      </Box>
+                    
+                   
+                    <TextField
+                      label="STN Released Date"
+                      id="outlined-size-small"
+                      size="small"
+                      onChange={handleChange("stnReleasedDate")}
+                      onBlur={handleBlur("stnReleasedDate")}
+                      value={values.stnReleasedDate}
+                    />
+                    {errors.stnReleasedDate && touched.stnReleasedDate ? (
+                      <Typography style={style.errorMsg}>
+                        {errors.stnReleasedDate}
+                      </Typography>
+                    ) : null}
+                  </div>
                 </Box>
               </Box>
               <Box
@@ -838,6 +852,7 @@ const style = {
     flexDirection: "column",
     gap: 3,
     alignItems: "center",
+    justifyContent: "center",
   },
 };
 export default Stns;

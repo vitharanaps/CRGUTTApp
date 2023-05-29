@@ -19,6 +19,7 @@ import SideBar from "../../component/sideBar/SideBar";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import "../../index.css";
+import emailjs from "@emailjs/browser";
 
 const ViewUserDetails = () => {
   const location = useLocation();
@@ -44,11 +45,30 @@ const ViewUserDetails = () => {
     }
     setLoadingUser(false);
   };
-  const DoApprove = async () => {
+  const DoApprove = async (userData) => {
+    var templateParams = {
+      to_mail : userData?.email
+  };
+  emailjs
+  .send(
+    "service_ybg03uc",
+    "template_ca30ryw",
+    templateParams,
+    "nqLAFLYkgOvPBZjpS"
+  )
+  .then((result) => {
+    console.log(result.text);
+  })
+  .catch((error) => {
+    console.log(error.text);
+  });
+
+
     try {
       await updateDoc(doc(db, "users", userId), {
         isConfirm: true,
       });
+     
       fetchUser();
       setOpenSnackBarPending(true);
     } catch (err) {
@@ -180,15 +200,11 @@ const ViewUserDetails = () => {
                   }}
                 >
                   <img
-
-                    src=
-                    {                   userData?.profileImage ?
+                    src={
                       userData?.profileImage
-                      :
-                      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png"
+                        ? userData?.profileImage
+                        : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png"
                     }
-                    
-                 
                     alt="userImg"
                     className="imgClass"
                   />
@@ -256,7 +272,7 @@ const ViewUserDetails = () => {
                         <Button
                           variant="outlined"
                           color="secondary"
-                          onClick={DoPending}
+                          onClick={()=>DoPending()}
                         >
                           To Do Pending
                         </Button>
@@ -264,7 +280,7 @@ const ViewUserDetails = () => {
                         <Button
                           variant="outlined"
                           color="primary"
-                          onClick={DoApprove}
+                          onClick={()=>DoApprove(userData)}
                         >
                           To Do Approved
                         </Button>
@@ -286,179 +302,7 @@ const ViewUserDetails = () => {
                   </Alert>
                 </Snackbar>
 
-                {/*                 
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Name With Initials
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.nameWithIn}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Email
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.email}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Address
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.address}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Id No
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.idNo}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Is Updated
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.isUpdated ? "Yes" : "No"}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Mobile No1
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.mobileNo1}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Mobile No2
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.mobileNo2}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    Occupation
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.ocupation}
-                  </Typography>
-                </Box>
 
-                <Box
-                  sx={{
-                    backgroundColor: "#fff",
-                    width: "95%",
-                    padding: 2,
-                    marginTop: 1,
-                    marginBottom: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Typography varient="h7" color="gray">
-                    User Role
-                  </Typography>
-                  <Typography varient="h7" color="gray">
-                    {userData?.role}
-                  </Typography>
-                </Box> */}
               </Box>
             </Box>
           </Stack>
@@ -491,20 +335,20 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                       </tr>
-                      <tr height="40px" >
-                      <td>
-                        {" "}
-                        <Typography variant="body" sx={{ margin: 2 }}>
-                          ID no{" "}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" sx={{ margin: 2 }}>
+                      <tr height="40px">
+                        <td>
                           {" "}
-                          {userData?.idNo}
-                        </Typography>
-                      </td>
-                    </tr>
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            ID no{" "}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" sx={{ margin: 2 }}>
+                            {" "}
+                            {userData?.idNo}
+                          </Typography>
+                        </td>
+                      </tr>
                       <tr height="40px">
                         <td>
                           {" "}
@@ -551,7 +395,7 @@ const ViewUserDetails = () => {
                         <td>
                           {" "}
                           <Typography variant="body" sx={{ margin: 2 }}>
-                            MObile No 2
+                            Mobile No 2
                           </Typography>
                         </td>
                         <td>
@@ -572,7 +416,6 @@ const ViewUserDetails = () => {
                 </Typography>
                 <Box sx={style.detailsRight}>
                   <table>
-
                     <tr height="40px">
                       <td>
                         {" "}
@@ -618,9 +461,27 @@ const ViewUserDetails = () => {
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={[ {margin: 2} , userData?.isConfirm ? {padding:1,background:"green",margin:1, color:"white" }:{padding:1,background:"red", margin:1, color:"white"} ]}>
+                        <Typography
+                          variant="body"
+                          sx={[
+                            { margin: 2 },
+                            userData?.isConfirm
+                              ? {
+                                  padding: 1,
+                                  background: "green",
+                                  margin: 1,
+                                  color: "white",
+                                }
+                              : {
+                                  padding: 1,
+                                  background: "red",
+                                  margin: 1,
+                                  color: "white",
+                                },
+                          ]}
+                        >
                           {" "}
-                          { userData?.isConfirm ? "Approved" :"Pending"}
+                          {userData?.isConfirm ? "Approved" : "Pending"}
                         </Typography>
                       </td>
                     </tr>
@@ -628,13 +489,31 @@ const ViewUserDetails = () => {
                       <td>
                         {" "}
                         <Typography variant="body" sx={{ margin: 2 }}>
-                        Updated 
+                          Updated
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={[ {margin: 2} , userData?.isUpdated ? {padding:1,background:"green", color:"white", margin:1 }   :  {padding:1,margin:1, background:"red", color:"white"}]}>
+                        <Typography
+                          variant="body"
+                          sx={[
+                            { margin: 2 },
+                            userData?.isUpdated
+                              ? {
+                                  padding: 1,
+                                  background: "green",
+                                  color: "white",
+                                  margin: 1,
+                                }
+                              : {
+                                  padding: 1,
+                                  margin: 1,
+                                  background: "red",
+                                  color: "white",
+                                },
+                          ]}
+                        >
                           {" "}
-                          { userData?.isUpdated ? "Yes" : "No"}
+                          {userData?.isUpdated ? "Yes" : "No"}
                         </Typography>
                       </td>
                     </tr>
@@ -642,13 +521,13 @@ const ViewUserDetails = () => {
                       <td>
                         {" "}
                         <Typography variant="body" sx={{ margin: 2 }}>
-                        User Role
+                          User Role
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={ {margin: 2}}>
+                        <Typography variant="body" sx={{ margin: 2 }}>
                           {" "}
-                          { userData?.role }
+                          {userData?.role}
                         </Typography>
                       </td>
                     </tr>
@@ -656,13 +535,13 @@ const ViewUserDetails = () => {
                       <td>
                         {" "}
                         <Typography variant="body" sx={{ margin: 2 }}>
-                        Registed Date
+                          Registed Date
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={ {margin: 2}}>
+                        <Typography variant="body" sx={{ margin: 2 }}>
                           {" "}
-                         {/* { userData?.timeStamp } */}
+                          {/* { userData?.timeStamp } */}
                         </Typography>
                       </td>
                     </tr>

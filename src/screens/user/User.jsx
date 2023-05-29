@@ -47,7 +47,6 @@ const User = () => {
         const querySnapshot = await getDocs(q);
 
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -59,7 +58,6 @@ const User = () => {
     fetchData();
   }, []);
 
-  console.log("data", data);
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
   };
@@ -92,7 +90,6 @@ const User = () => {
       querySnapshot.forEach((doc) => {
         optionList.push({ id: doc.id, ...doc.data() });
 
-        console.log(doc.id, " => ", doc.data());
       });
       setData(optionList);
       setFilteredData(optionList);
@@ -100,7 +97,6 @@ const User = () => {
       console.log(err);
     }
   };
-  console.log(data);
   return (
     <Box>
       <Navbar />

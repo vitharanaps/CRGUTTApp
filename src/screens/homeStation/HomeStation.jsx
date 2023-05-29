@@ -27,6 +27,7 @@ import {
   addDoc,
   collection,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   where,
@@ -53,7 +54,7 @@ const HomeStation = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const [loadValue, setLoadValue] = useState(2);
+  const [loadValue, setLoadValue] = useState(30);
 
   const [filteredData, setFilteredData] = useState([]);
 
@@ -67,9 +68,11 @@ const HomeStation = () => {
     const fetchData = async () => {
       let list = [];
       try {
-        const querySnapshot = await getDocs(collection(db, "homeStation"));
+         
+      const optionsRef = collection(db, "homeStation");
+      const q = query(optionsRef, orderBy("hStationNo", "asc"));
+      const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -100,7 +103,6 @@ const HomeStation = () => {
     try {
       const querySnapshot = await getDocs(collection(db, "homeStation"));
       querySnapshot.forEach((doc) => {
-        console.log(doc.data);
         list.push({ id: doc.id, ...doc.data() });
       });
       setData(list);
@@ -156,11 +158,11 @@ const HomeStation = () => {
 
   const handleView = (id) => {
     // navigate("/", { state: { id: id} });
-    navigate(`/lines/${id}`);
+    navigate(`/homeStation/${id}`);
   };
 
   const loadMore = () => {
-    setLoadValue((prevValue) => prevValue + 3);
+    setLoadValue((prevValue) => prevValue + 30);
   };
 
   return (

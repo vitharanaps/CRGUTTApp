@@ -1,0 +1,11 @@
+.date-picker-wrapper {
+min-width:  190px !important;
+    height: 30px !important;
+    font-size:15px !important;
+}
+.released {
+    display: flex;
+    flex-direction: column;
+   
+
+}

@@ -16,6 +16,9 @@ import ViewTrain from '../screens/viewTrain/ViewTrain';
 import ViewUserDetails from '../screens/viewUserDetails/ViewUserDetails';
 import { AuthContext } from '../context/AuthContext';
 import HomeStation from '../screens/homeStation/HomeStation';
+import ViewHomeStation from '../screens/viewHomeStation/ViewHomeStation';
+import ErrorReport from '../screens/errorReport/ErrorReport';
+import ViewErrorReport from '../screens/viewErrorReport/ViewErrorReport';
 
 const Navigation = () => {
 
@@ -55,6 +58,13 @@ const Navigation = () => {
 
                      {/* <Route path='*' element={<NotFound />} /> */}
                 </Route>
+                <Route path='error' >
+                    <Route index element={<RequireAuth><ErrorReport /></RequireAuth>} />
+                    <Route path=":my" element={<RequireAuth><ViewErrorReport /></RequireAuth>} />
+                    {/* <Route path="newuser" element={<RequireAuth><NewUser /></RequireAuth>} /> */}
+
+                     {/* <Route path='*' element={<NotFound />} /> */}
+                </Route>
                 <Route path='lines' >
                     <Route index element={<RequireAuth><Lines /></RequireAuth>} />
                     <Route path=":my" element={<RequireAuth><ViewLine /></RequireAuth>} />
@@ -64,7 +74,7 @@ const Navigation = () => {
                 </Route>
                 <Route path='homeStation' >
                     <Route index element={<RequireAuth><HomeStation /></RequireAuth>} />
-                    <Route path=":my" element={<RequireAuth><ViewLine /></RequireAuth>} />
+                    <Route path=":my" element={<RequireAuth><ViewHomeStation /></RequireAuth>} />
                     {/* <Route path="newuser" element={<RequireAuth><NewUser /></RequireAuth>} /> */}
 
                      {/* <Route path='*' element={<NotFound />} /> */}

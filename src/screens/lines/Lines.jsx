@@ -27,6 +27,7 @@ import {
   addDoc,
   collection,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   where,
@@ -52,7 +53,7 @@ const Lines = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-const[loadValue, setLoadValue] =useState(2)
+  const [loadValue, setLoadValue] = useState(30);
 
   const [filteredData, setFilteredData] = useState([]);
 
@@ -66,9 +67,10 @@ const[loadValue, setLoadValue] =useState(2)
     const fetchData = async () => {
       let list = [];
       try {
-        const querySnapshot = await getDocs(collection(db, "lines"));
+        const optionsRef = collection(db, "lines");
+        const q = query(optionsRef, orderBy("lineNo", "asc"));
+        const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -97,9 +99,11 @@ const[loadValue, setLoadValue] =useState(2)
   const fetchData = async () => {
     let list = [];
     try {
-      const querySnapshot = await getDocs(collection(db, "lines"));
+      // const querySnapshot = await getDocs(collection(db, "lines"));
+      const optionsRef = collection(db, "lines");
+      const q = query(optionsRef, orderBy("lineNo", "asc"));
+      const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        console.log(doc.data);
         list.push({ id: doc.id, ...doc.data() });
       });
       setData(list);
@@ -158,9 +162,9 @@ const[loadValue, setLoadValue] =useState(2)
     navigate(`/lines/${id}`);
   };
 
-const loadMore = () =>{
-  setLoadValue((prevValue)=> prevValue + 3)
-}
+  const loadMore = () => {
+    setLoadValue((prevValue) => prevValue + 30);
+  };
 
   return (
     <Box>
@@ -300,23 +304,25 @@ const loadMore = () =>{
               </Box>
             </Box>
           </Stack>
-          {filteredData.length > 0 &&
-           <Stack
-           sx={{
-             justifyContent: "center",
-             marginBottom: 2,
-             alignItems: "center",
-           }}
-         >
-           <Box sx={style.loadMoreContainer}>
-             <Button variant="contained" color="secondary" onClick={loadMore} >
-               Load More
-             </Button>
-           </Box>
-         </Stack>
-          
-          }
-         
+          {filteredData.length > 0 && (
+            <Stack
+              sx={{
+                justifyContent: "center",
+                marginBottom: 2,
+                alignItems: "center",
+              }}
+            >
+              <Box sx={style.loadMoreContainer}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={loadMore}
+                >
+                  Load More
+                </Button>
+              </Box>
+            </Stack>
+          )}
         </Box>
       </Box>
       {/* Modal */}

@@ -108,7 +108,8 @@ const Navbar = () => {
     }
   };
   //pass Notification Id
-  const onClickNotification = async (notificationId) => {
+  const onClickNotification = async (notificationId ,stnId) => {
+    navigate(`/stn/${stnId}`);
     const updateNotificationViewArray = doc(db, "Notification", notificationId);
 
     await updateDoc(updateNotificationViewArray, {
@@ -211,7 +212,7 @@ const Navbar = () => {
                   style.listButtonStyle,
                   checkView(nf?.view) ? null : { backgroundColor: "darkgray" },
                 ]}
-                onClick={() => onClickNotification(nf?.id)}
+                onClick={() => onClickNotification(nf?.id, nf?.stnId)}
               >
                 <ListItemText
                   primary={nf?.title}

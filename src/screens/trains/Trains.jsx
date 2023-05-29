@@ -83,7 +83,6 @@ const Trains = () => {
       try {
         const querySnapshot = await getDocs(collection(db, "trains"));
         querySnapshot.forEach((doc) => {
-          console.log(doc.data);
           list.push({ id: doc.id, ...doc.data() });
         });
         setData(list);
@@ -122,7 +121,6 @@ const Trains = () => {
         querySnapshot.forEach((doc) => {
           optionList.push({ id: doc.id, ...doc.data() });
 
-          console.log(doc.id, " => ", doc.data());
         });
         setData(optionList);
         setFilteredData(optionList);
@@ -143,7 +141,6 @@ const Trains = () => {
     try {
       const querySnapshot = await getDocs(collection(db, "trains"));
       querySnapshot.forEach((doc) => {
-        console.log(doc.data);
         list.push({ id: doc.id, ...doc.data() });
       });
       setData(list);
@@ -258,9 +255,9 @@ return dayjs(convertedDate).fromNow(true)
     // navigate("/", { state: { id: id} });
     navigate(`/trains/${id}`)
    };
-   const [loadValue, setLoadValue] = useState(3)
+   const [loadValue, setLoadValue] = useState(30)
    const loadMore = () =>{
-    setLoadValue((prevValue)=> prevValue + 3)
+    setLoadValue((prevValue)=> prevValue + 30)
   }
   
   return (
