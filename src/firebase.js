@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 const firebaseConfig = {
-  apiKey: "AIzaSyAMy4XTsYNgffUOT-P2JsOqN3ZjvD6nqWw",
+
   authDomain: "crgu-tt-app-1.firebaseapp.com",
   projectId: "crgu-tt-app-1",
   storageBucket: "crgu-tt-app-1.appspot.com",
