@@ -11,6 +11,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,7 +20,7 @@ import SideBar from "../../component/sideBar/SideBar";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import "../../index.css";
-import emailjs from "@emailjs/browser";
+import { Try } from "@mui/icons-material";
 
 const ViewUserDetails = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const ViewUserDetails = () => {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,30 +47,11 @@ const ViewUserDetails = () => {
     }
     setLoadingUser(false);
   };
-  const DoApprove = async (userData) => {
-    var templateParams = {
-      to_mail : userData?.email
-  };
-  emailjs
-  .send(
-    "service_ybg03uc",
-    "template_ca30ryw",
-    templateParams,
-    "nqLAFLYkgOvPBZjpS"
-  )
-  .then((result) => {
-    console.log(result.text);
-  })
-  .catch((error) => {
-    console.log(error.text);
-  });
-
-
+  const DoApprove = async () => {
     try {
       await updateDoc(doc(db, "users", userId), {
         isConfirm: true,
       });
-     
       fetchUser();
       setOpenSnackBarPending(true);
     } catch (err) {
@@ -135,6 +118,58 @@ const ViewUserDetails = () => {
 
     setOpenSnackBarPending(false);
   };
+
+
+  const [data, setData] = useState({
+    email: "",
+    idNo: "",
+    mobileNo1:"",
+    mobileNo2:"",
+    nameWithIn: "",
+    address:"",
+    uniqueDeviceId:"",
+    userDeviceCount:""
+  });
+
+  const onChangeText = (e) => {
+    const { name, value } = e.target;
+    setData({
+      ...data, 
+      [name]: value, 
+    });
+  };
+  useEffect(() => {
+    if (userData) {
+      setData((prevData) => ({
+        ...prevData,
+        nameWithIn: userData.nameWithIn || '',
+        email: userData?.email || "",
+        idNo: userData?.idNo || "",
+        mobileNo1:userData?.mobileNo1 || "",
+        mobileNo2:userData?.mobileNo2 || "",
+        address:userData?.address || "",
+        uniqueDeviceId:userData?.uniqueDeviceId || "",
+        userDeviceCount:userData?.userDeviceCount || "",
+      }));
+    }
+  }, [userData]);
+const updateUser = async() =>{
+try {
+  setLoadingUpdate(true)
+  const userRef = doc(db, "users", userId);
+const status=await updateDoc(userRef, 
+  data
+);
+fetchUser(userId)
+setLoadingUpdate(false)
+  alert("Successfully Updated")
+
+} catch (error) {
+  console.log(error)
+} finally{
+  setLoadingUpdate(false)
+}
+}
 
   return (
     <Box>
@@ -265,14 +300,12 @@ const ViewUserDetails = () => {
                         </DialogActions>
                       </Dialog>
 
-                      <Button variant="outlined" color="success">
-                        Edit
-                      </Button>
+                    
                       {userData?.isConfirm ? (
                         <Button
                           variant="outlined"
                           color="secondary"
-                          onClick={()=>DoPending()}
+                          onClick={DoPending}
                         >
                           To Do Pending
                         </Button>
@@ -280,7 +313,7 @@ const ViewUserDetails = () => {
                         <Button
                           variant="outlined"
                           color="primary"
-                          onClick={()=>DoApprove(userData)}
+                          onClick={DoApprove}
                         >
                           To Do Approved
                         </Button>
@@ -302,7 +335,179 @@ const ViewUserDetails = () => {
                   </Alert>
                 </Snackbar>
 
+                {/*                 
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Name With Initials
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.nameWithIn}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Email
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.email}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Address
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.address}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Id No
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.idNo}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Is Updated
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.isUpdated ? "Yes" : "No"}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Mobile No1
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.mobileNo1}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Mobile No2
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.mobileNo2}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    Occupation
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.ocupation}
+                  </Typography>
+                </Box>
 
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    width: "95%",
+                    padding: 2,
+                    marginTop: 1,
+                    marginBottom: 1,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Typography varient="h7" color="gray">
+                    User Role
+                  </Typography>
+                  <Typography varient="h7" color="gray">
+                    {userData?.role}
+                  </Typography>
+                </Box> */}
               </Box>
             </Box>
           </Stack>
@@ -329,24 +534,31 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.nameWithIn}
-                          </Typography>
+                          <TextField
+                          type="text"
+                            name="nameWithIn"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.nameWithIn}
+                            defaultValue={userData?.nameWithIn}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
                         <td>
-                          {" "}
                           <Typography variant="body" sx={{ margin: 2 }}>
                             ID no{" "}
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.idNo}
-                          </Typography>
+                        <TextField
+                          type="text"
+                            name="idNo"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.idNo}
+                            defaultValue={userData?.idNo}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
@@ -357,10 +569,15 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.email}
-                          </Typography>
+                        <TextField
+                          type="text"
+                            name="email"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.email}
+                            defaultValue={userData?.email}
+                            disabled
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
@@ -371,10 +588,14 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.address}
-                          </Typography>
+                        <TextField
+                          type="text"
+                            name="address"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.address}
+                            defaultValue={userData?.address}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
@@ -385,10 +606,14 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.mobileNo1}
-                          </Typography>
+                        <TextField
+                          type="text"
+                            name="mobileNo1"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.mobileNo1}
+                            defaultValue={userData?.mobileNo1}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
@@ -399,10 +624,14 @@ const ViewUserDetails = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {userData?.mobileNo2}
-                          </Typography>
+                        <TextField
+                          type="text"
+                            name="mobileNo2"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.mobileNo2}
+                            defaultValue={userData?.mobileNo2}
+                          />
                         </td>
                       </tr>
                     </table>
@@ -545,10 +774,74 @@ const ViewUserDetails = () => {
                         </Typography>
                       </td>
                     </tr>
+                    <tr height="40px">
+                      <td>
+                        {" "}
+                        <Typography variant="body" sx={{ margin: 2 }}>
+                          Unique ID 
+                        </Typography>
+                      </td>
+                      <td>
+                      <TextField
+                          type="text"
+                            name="uniqueDeviceId"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.uniqueDeviceId}
+                            defaultValue={userData?.uniqueDeviceId}
+                          />
+                      </td>
+                    </tr>
+                    <tr height="40px">
+                      <td>
+                        <Typography variant="body" sx={{ margin: 2 }}>
+                          user Device Count
+                        </Typography>
+                      </td>
+                      <td>
+                      <TextField
+                          type="text"
+                            name="userDeviceCount"
+                            size="small"
+                             onChange={onChangeText}
+                            value={data?.userDeviceCount}
+                            defaultValue={userData?.userDeviceCount}
+                          />
+                      </td>
+                    </tr>
                   </table>
                 </Box>
               </Box>
+             
             </Box>
+            
+          </Stack>
+          <Stack  sx={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: 10,
+              bgcolor:"white",
+              display:"flex",
+              justifyItems:"center",
+              height:80,
+              marginX:3
+            }}>
+          <Box >
+          {loadingUpdate ? (
+                <Box>
+                  <CircularProgress color="secondary" />{" "}
+                </Box>
+              ) : (
+                <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={updateUser}
+                        >
+                          Update User
+                        </Button>
+              )}
+             
+              </Box>
           </Stack>
         </Box>
       </Box>

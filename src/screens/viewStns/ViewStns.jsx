@@ -12,17 +12,18 @@ import {
   Snackbar,
   Alert,
   Modal,
+  TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../component/navbar/Navbar";
 import SideBar from "../../component/sideBar/SideBar";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db , storage} from "../../firebase";
 import "../../index.css";
-import Zoom from "react-img-zoom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const ViewStns = () => {
   const location = useLocation();
@@ -30,7 +31,10 @@ const ViewStns = () => {
   const [stnData, setStnData] = useState(null);
   const [loadingStn, setLoadingStn] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
-
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [existingFileUrl, setExistingFileUrl] = useState(null);  
+  const [file, setFile] = useState(null); 
+const [previewUrl,setPreviewUrl]= useState(null)
   const navigate = useNavigate();
 
   //chnage User Status
@@ -111,6 +115,91 @@ const ViewStns = () => {
 
   dayjs.extend(relativeTime);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);  // Set the selected file to state
+      const previewUrl = URL.createObjectURL(file);  // Generate a preview URL for the image
+      setPreviewUrl(previewUrl);
+    }
+  };
+  
+    const updateStn = async () => {
+      const stnRef = doc(db, "stns", stnId);
+    
+      try {
+        setLoadingUpdate(true);
+    
+        if (file) {
+          const storageRef = ref(storage, `StnImages/${file.name}`);
+    
+          const snapshot = await uploadBytes(storageRef, file);
+          const newFileUrl = await getDownloadURL(snapshot.ref);
+    
+          await updateDoc(stnRef, {
+            ...data,
+            stnImage: newFileUrl,
+          });
+    
+          if (existingFileUrl) {
+            const oldFileRef = ref(storage, existingFileUrl);
+            await deleteObject(oldFileRef);
+          }
+    
+          fetchStn(stnId);
+          alert("Successfully Updated");
+        } else {
+          await updateDoc(stnRef, data);
+          fetchStn(stnId);
+          alert("Successfully Updated");
+        }
+      } catch (error) {
+        console.log(error);
+        alert("Failed to update");
+      } finally {
+        setLoadingUpdate(false);
+      }
+    };
+  
+    const [data, setData] = useState({
+      destPlace: "",
+      destTime: "",
+      formTrainNo: "",
+      line: "",
+      lineNo: "",
+      stAt: "",
+      stTime: "",
+      stnNo: "",
+      stnReleasedDate: "",
+      stnImage: "", 
+    });
+  
+    const onChangeText = (e) => {
+      const { name, value } = e.target;
+      setData({
+        ...data,
+        [name]: value,
+      });
+    };
+    useEffect(() => {
+      if (stnData) {
+        setData((prevData) => ({
+          ...prevData,
+          destPlace: stnData.destPlace || "",
+          destTime: stnData.destTime || "",
+          formTrainNo: stnData.formTrainNo || "",
+          line: stnData.line || "",
+          lineNo: stnData.lineNo || "",
+          stAt: stnData.stAt || "",
+          stTime: stnData.stTime || "",
+          stnNo: stnData.stnNo || "",
+          stnReleasedDate: stnData.stnReleasedDate || "",
+  stnImage : stnData.stnImage || "",
+        }));
+        setExistingFileUrl(stnData.stnImage);
+      }
+    }, [stnData]);
+  
   return (
     <Box>
       <Navbar />
@@ -139,7 +228,7 @@ const ViewStns = () => {
           >
             <Box sx={style.title}>
               <Typography variant="h6" color="gray">
-                Train No {stnData?.trainNo}
+                Train No - {stnData?.trainNo}
               </Typography>
             </Box>
           </Stack>
@@ -184,6 +273,10 @@ const ViewStns = () => {
                     className="imgClass"
                     onClick={handleOpen}
                   />
+                   <input
+    type="file"
+    onChange={handleFileChange}
+  />
                   <Box
                     sx={{
                       display: "flex",
@@ -447,10 +540,16 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {stnData?.stnNo}
-                          </Typography>
+                        <td>
+                          <TextField
+                            type="text"
+                            name="stnNo"
+                            size="small"
+                            onChange={onChangeText}
+                            value={data?.stnNo}
+                            defaultValue={stnData?.stnNo}
+                          />
+                        </td>
                         </td>
                       </tr>
                       <tr height="40px">
@@ -461,10 +560,25 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {stnData?.stTime} - {stnData?.stAt}
-                          </Typography>
+                            <TextField
+                              type="text"
+                              name="stTime"
+                              size="small"
+                              sx={{ width: 80 }}
+                              onChange={onChangeText}
+                              value={data?.stTime}
+                              defaultValue={stnData?.stTime}
+                            />{" "}
+                            -{" "}
+                            <TextField
+                              type="text"
+                              name="stAt"
+                              size="small"
+                              sx={{ width: 80 }}
+                              onChange={onChangeText}
+                              value={data?.stAt}
+                              defaultValue={stnData?.stAt}
+                            />                       
                         </td>
                       </tr>
                       <tr height="40px">
@@ -475,27 +589,44 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {stnData?.destTime} -{stnData?.destPlace}
-                          </Typography>
+                        <TextField
+                            type="text"
+                            name="destTime"
+                            size="small"
+                            sx={{ width: 80 }}
+                            onChange={onChangeText}
+                            value={data?.destTime}
+                            defaultValue={stnData?.destTime}
+                          />{" "}
+                          -{" "}
+                          <TextField
+                            type="text"
+                            name="destPlace"
+                            size="small"
+                            sx={{ width: 80 }}
+                            onChange={onChangeText}
+                            value={data?.destPlace}
+                            defaultValue={stnData?.destPlace}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
                         <td>
                           {" "}
                           <Typography variant="body" sx={{ margin: 2 }}>
-                            Updated At{" "}
+                            Released Date{" "}
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {
-//stnData?.timeStamp.toString()
-                            convertDate(stnData?.timeStamp)
-                          }
-                          </Typography>
+                        <TextField
+                            type="text"
+                            name="stnReleasedDate"
+                            size="small"
+                            sx={{ width: 120 }}
+                            onChange={onChangeText}
+                            value={data?.stnReleasedDate}
+                            defaultValue={stnData?.stnReleasedDate}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
@@ -506,20 +637,22 @@ const ViewStns = () => {
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" sx={{ margin: 2 }}>
-                            {" "}
-                            {
-//stnData?.timeStamp.toString()
-                          stnData?.formTrainNo
-                          }
-                          </Typography>
+                        <TextField
+                            type="text"
+                            name="formTrainNo"
+                            size="small"
+                            sx={{ width: 120 }}
+                            onChange={onChangeText}
+                            value={data?.formTrainNo}
+                            defaultValue={stnData?.formTrainNo}
+                          />
                         </td>
                       </tr>
                       <tr height="40px">
                         <td>
                           {" "}
                           <Typography variant="body" sx={{ margin: 2 }}>
-                            Stn Released Date{" "}
+                            Updated At
                           </Typography>
                         </td>
                         <td>
@@ -545,16 +678,21 @@ const ViewStns = () => {
                   <table>
                     <tr height="40px">
                       <td>
-                        {" "}
                         <Typography variant="body" sx={{ margin: 2 }}>
                           Line No
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={{ margin: 2 }}>
-                          {" "}
-                          {stnData?.lineNo}
-                        </Typography>
+                      <TextField
+                            type="text"
+                            name="lineNo"
+                            size="small"
+                            sx={{ width: 120 }}
+                            onChange={onChangeText}
+                            value={data?.lineNo}
+                            defaultValue={stnData?.lineNo}
+                          />
+                       
                       </td>
                     </tr>
                     <tr height="40px">
@@ -565,20 +703,35 @@ const ViewStns = () => {
                         </Typography>
                       </td>
                       <td>
-                        <Typography variant="body" sx={{ margin: 2 }}>
-                          {" "}
-                          {stnData?.line}
-                        </Typography>
+                      <TextField
+                            type="text"
+                            name="line"
+                            size="small"
+                            sx={{ width: 120 }}
+                            onChange={onChangeText}
+                            value={data?.line}
+                            defaultValue={stnData?.line}
+                          />
                       </td>
                     </tr>
                   </table>
                 </Box>
               </Box>
             </Box>
+            <Box sx={{marginY:5}}>
+              {loadingUpdate ? (
+                <Box>
+                  <CircularProgress color="secondary" />
+                </Box>
+              ) : (
+                <Button variant="contained" color="primary" onClick={updateStn}>
+                  Update STNs
+                </Button>
+              )}
+            </Box>
           </Stack>
         </Box>
       </Box>
-
       <Modal
         open={open}
         onClose={handleCloseModal}
